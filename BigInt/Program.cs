@@ -45,13 +45,14 @@ namespace BigInt
                                            throw new InvalidOperationException("Пустая строка - число")),
                                 uint.Parse(Console.ReadLine() ??
                                            throw new InvalidOperationException("Пустая строка - число")));
+
                         var inputBytes = Encoding.UTF8.GetBytes(input);
                         Console.WriteLine(Encoding.UTF8.GetString(inputBytes));
                         Console.WriteLine("Input Bytes \r\n" + BitConverter.ToString(inputBytes));
 
                         var encrypted = encryptor.Encrypt(inputBytes);
                         Console.WriteLine(Encoding.UTF8.GetString(encrypted));
-                        Console.WriteLine("Output Bytes \r\n" + BitConverter.ToString(encrypted));
+                        Console.WriteLine("Encrypted Bytes \r\n" + BitConverter.ToString(encrypted));
 
                         var decrypted = encryptor.Decrypt(encrypted);
                         Console.WriteLine(Encoding.UTF8.GetString(decrypted));
