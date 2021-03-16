@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BigInt
 {
@@ -9,8 +11,8 @@ namespace BigInt
     {
         private readonly BigInt _eulerFunction;
         private readonly BigInt _module;
-        private readonly BigInt _publicExponent;
         private readonly BigInt _secretExponent;
+        private readonly BigInt _publicExponent;
 
         public RSACryptor(uint p, uint q)
         {
@@ -18,8 +20,8 @@ namespace BigInt
                 throw new ArgumentException("P и Q должны быть простыми числами");
             _module = new BigInt(p) * new BigInt(q);
             _eulerFunction = (new BigInt(p) - BigInt.One) * (new BigInt(q) - BigInt.One);
-            _secretExponent = CreateSecretExponent(_eulerFunction);
-            _publicExponent = _secretExponent.GetReverseElement(_eulerFunction);
+            _publicExponent = CreatePublicExponent(_eulerFunction);
+            _secretExponent = _publicExponent.GetReverseElement(_eulerFunction);
             Validate();
         }
 
@@ -66,8 +68,13 @@ namespace BigInt
         public static byte[] Encrypt(byte[] input, BigInt e, BigInt n)
         {
             return input
-                .Select(item => new BigInt(item).ModPow(e, n).ConvertToUInt())
-                .Select(x => BitConverter.GetBytes(x))
+                .Select(x => new BigInt(x).ModPow(e, n))
+                .Select(x =>
+                {
+                    var arr = new byte[n.Count];
+                    x.Bytes.CopyTo(arr, 0);
+                    return arr;
+                })
                 .SelectMany(x => x)
                 .ToArray();
         }
@@ -76,9 +83,8 @@ namespace BigInt
         {
             return input
                 .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 4)
+                .GroupBy(x => x.Index / n.Bytes.Count)
                 .Select(x => x.Select(v => v.Value).ToArray())
-                .Select(x => BitConverter.ToUInt32(x, 0))
                 .Select(x => new BigInt(x).ModPow(d, n))
                 .Select(x => (byte) x.ConvertToUInt())
                 .ToArray();
@@ -86,15 +92,15 @@ namespace BigInt
 
         private void Validate()
         {
-            if (_publicExponent.IsZero && !_secretExponent.IsZero)
+            if (_secretExponent.IsZero && !_publicExponent.IsZero)
                 throw new ArgumentException("Публичная и приватная экспонента не могут быть равны 0");
             if (_eulerFunction < new BigInt(256) && _module < new BigInt(256))
                 throw new ArgumentException("Значение функции Эйлера и модуль не должны быть меньше одного байта");
         }
 
-        public static BigInt CreateSecretExponent(BigInt mod)
+        public static BigInt CreatePublicExponent(BigInt mod)
         {
-            var exp = new BigInt(10);
+            var exp = new BigInt(3);
             for (var i = BigInt.Two; i < mod; i++)
             {
                 if (BigInt.GCD(exp, mod, out _, out _) == BigInt.One)

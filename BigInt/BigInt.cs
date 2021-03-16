@@ -52,6 +52,11 @@ namespace BigInt
             Bytes = bigInt.Bytes.GetRange(0, bigInt.Bytes.Count);
         }
 
+        public BigInt(IEnumerable<byte> bytes)
+        { ;
+            Bytes = new List<byte>(bytes);
+        }
+
         private BigInt(bool isPositive, List<byte> bytes)
         {
             IsPositive = isPositive;
