@@ -1,0 +1,7 @@
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\bin\Debug\BigInt.exe.config
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\bin\Debug\BigInt.exe
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\bin\Debug\BigInt.pdb
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.csproj.CoreCompileInputs.cache
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.exe
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.pdb
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.csprojAssemblyReference.cache
