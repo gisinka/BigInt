@@ -108,7 +108,7 @@ namespace BigInt
         private static bool IsPrime(ulong n)
         {
             if (n > 1)
-                for (var i = 2u; i < n; i++)
+                for (var i = 2Ul; i < n; i++)
                 {
                     if (n % i != 0) continue;
                     return false;
