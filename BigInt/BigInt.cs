@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -170,6 +172,32 @@ namespace BigInt
             }
 
             return result;
+        }
+
+        public byte[] GetPackedBCD(int length)
+        {
+            var bytes = new List<byte>();
+            var counter = length > Count ? length : Count;
+            for (var i = 0; i < counter; i+=2)
+            {
+                var first = GetByte(i);
+                var second = (byte) (GetByte(i + 1) << 4);
+                bytes.Add((byte) (first | second));
+            }
+
+            return bytes.ToArray();
+        }
+
+        public static BigInt GetUnpackedBCD(IEnumerable<byte> packed)
+        {
+            var bytes = new List<byte>();
+            foreach (var item in packed)
+            {
+                bytes.Add((byte)(item & 0x0F));
+                bytes.Add((byte)((item & 0xF0) >> 4));
+            }
+
+            return new BigInt(bytes);
         }
 
         private static int Comparison(BigInt a, BigInt b, bool ignoreSign = false)

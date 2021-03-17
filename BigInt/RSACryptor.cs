@@ -69,12 +69,14 @@ namespace BigInt
         {
             return input
                 .Select(x => new BigInt(x).ModPow(e, n))
-                .Select(x =>
+                /*.Select(x =>
                 {
                     var arr = new byte[n.Count];
                     x.Bytes.CopyTo(arr, 0);
                     return arr;
                 })
+                .SelectMany(x => x)*/
+                .Select(x => x.GetPackedBCD(n.Count))
                 .SelectMany(x => x)
                 .ToArray();
         }
@@ -83,9 +85,9 @@ namespace BigInt
         {
             return input
                 .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / n.Bytes.Count)
-                .Select(x => x.Select(v => v.Value).ToArray())
-                .Select(x => new BigInt(x).ModPow(d, n))
+                .GroupBy(x => x.Index / (int)Math.Ceiling((double) n.Count / 2))
+                .Select(x => BigInt.GetUnpackedBCD(x.Select(v => v.Value)))
+                .Select(x => x.ModPow(d, n))
                 .Select(x => (byte) x.ConvertToUInt())
                 .ToArray();
         }
@@ -100,7 +102,7 @@ namespace BigInt
 
         public static BigInt CreatePublicExponent(BigInt mod)
         {
-            var exp = new BigInt(3);
+            var exp = new BigInt(10);
             for (var i = BigInt.Two; i < mod; i++)
             {
                 if (BigInt.GCD(exp, mod, out _, out _) == BigInt.One)
