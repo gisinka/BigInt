@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BigInt
 {
@@ -11,10 +9,10 @@ namespace BigInt
     {
         private readonly BigInt _eulerFunction;
         private readonly BigInt _module;
-        private readonly BigInt _secretExponent;
         private readonly BigInt _publicExponent;
+        private readonly BigInt _secretExponent;
 
-        public RSACryptor(uint p, uint q)
+        public RSACryptor(ulong p, ulong q)
         {
             if (!(IsPrime(p) && IsPrime(q)))
                 throw new ArgumentException("P и Q должны быть простыми числами");
@@ -69,13 +67,6 @@ namespace BigInt
         {
             return input
                 .Select(x => new BigInt(x).ModPow(e, n))
-                /*.Select(x =>
-                {
-                    var arr = new byte[n.Count];
-                    x.Bytes.CopyTo(arr, 0);
-                    return arr;
-                })
-                .SelectMany(x => x)*/
                 .Select(x => x.GetPackedBCD(n.Count))
                 .SelectMany(x => x)
                 .ToArray();
@@ -84,8 +75,8 @@ namespace BigInt
         public static byte[] Decrypt(IEnumerable<byte> input, BigInt d, BigInt n)
         {
             return input
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / (int)Math.Ceiling((double) n.Count / 2))
+                .Select((x, i) => new {Index = i, Value = x})
+                .GroupBy(x => x.Index / (int) Math.Ceiling((double) n.Count / 2))
                 .Select(x => BigInt.GetUnpackedBCD(x.Select(v => v.Value)))
                 .Select(x => x.ModPow(d, n))
                 .Select(x => (byte) x.ConvertToUInt())
@@ -96,6 +87,7 @@ namespace BigInt
         {
             if (_secretExponent.IsZero && !_publicExponent.IsZero)
                 throw new ArgumentException("Публичная и приватная экспонента не могут быть равны 0");
+
             if (_eulerFunction < new BigInt(256) && _module < new BigInt(256))
                 throw new ArgumentException("Значение функции Эйлера и модуль не должны быть меньше одного байта");
         }
@@ -113,16 +105,14 @@ namespace BigInt
             return exp;
         }
 
-        private static bool IsPrime(uint n)
+        private static bool IsPrime(ulong n)
         {
             if (n > 1)
-            {
                 for (var i = 2u; i < n; i++)
                 {
                     if (n % i != 0) continue;
                     return false;
                 }
-            }
             else
                 return false;
 

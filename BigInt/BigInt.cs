@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -55,7 +53,8 @@ namespace BigInt
         }
 
         public BigInt(IEnumerable<byte> bytes)
-        { ;
+        {
+            ;
             Bytes = new List<byte>(bytes);
         }
 
@@ -99,7 +98,7 @@ namespace BigInt
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == GetType() && Equals((BigInt) obj);
         }
@@ -178,7 +177,7 @@ namespace BigInt
         {
             var bytes = new List<byte>();
             var counter = length > Count ? length : Count;
-            for (var i = 0; i < counter; i+=2)
+            for (var i = 0; i < counter; i += 2)
             {
                 var first = GetByte(i);
                 var second = (byte) (GetByte(i + 1) << 4);
@@ -193,8 +192,8 @@ namespace BigInt
             var bytes = new List<byte>();
             foreach (var item in packed)
             {
-                bytes.Add((byte)(item & 0x0F));
-                bytes.Add((byte)((item & 0xF0) >> 4));
+                bytes.Add((byte) (item & 0x0F));
+                bytes.Add((byte) ((item & 0xF0) >> 4));
             }
 
             return new BigInt(bytes);
@@ -207,13 +206,11 @@ namespace BigInt
 
         private static int CompareSign(BigInt a, BigInt b, bool ignoreSign = false)
         {
-            if (!ignoreSign)
-            {
-                if (!a.IsPositive && b.IsPositive)
-                    return -1;
-                if (a.IsPositive && !b.IsPositive)
-                    return 1;
-            }
+            if (ignoreSign) return CompareSize(a, b);
+            if (!a.IsPositive && b.IsPositive)
+                return -1;
+            if (a.IsPositive && !b.IsPositive)
+                return 1;
 
             return CompareSize(a, b);
         }
@@ -415,7 +412,7 @@ namespace BigInt
             var bytes = new List<byte>();
             do
             {
-                bytes.Add((byte)(value % 10));
+                bytes.Add((byte) (value % 10));
                 value /= 10;
             } while (value > 0);
 

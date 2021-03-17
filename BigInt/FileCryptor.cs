@@ -12,6 +12,11 @@ namespace BigInt
             _rsa = new RSACryptor(p, q);
         }
 
+        public FileCryptor(ulong p, ulong q)
+        {
+            _rsa = new RSACryptor(p, q);
+        }
+
         public void Encrypt(string filename)
         {
             var path = $"{Directory.GetCurrentDirectory()}\\{filename}";
