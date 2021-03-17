@@ -37,7 +37,6 @@ namespace BigInt
 
             if (str.StartsWith("+"))
             {
-                IsPositive = false;
                 str = str.Substring(1);
             }
 
@@ -54,7 +53,6 @@ namespace BigInt
 
         public BigInt(IEnumerable<byte> bytes)
         {
-            ;
             Bytes = new List<byte>(bytes);
         }
 
@@ -91,16 +89,12 @@ namespace BigInt
             Bytes.AddRange(GetBytes(value));
         }
 
-        protected bool Equals(BigInt other)
-        {
-            return Equals(Bytes, other.Bytes) && IsPositive == other.IsPositive;
-        }
-
         public override bool Equals(object obj)
         {
-            if (obj is null) return false;
+            if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((BigInt) obj);
+            if (obj.GetType() != GetType()) return false;
+            return Comparison(this, (BigInt) obj) == 0;
         }
 
         public override int GetHashCode()
@@ -236,26 +230,16 @@ namespace BigInt
         private static BigInt Add(BigInt a, BigInt b)
         {
             var digits = new List<byte>();
+            byte carry = 0;
 
-            var maxLength = Math.Max(a.Count, b.Count);
-            byte digit = 0;
-            for (var i = 0; i < maxLength; i++)
+            for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
-                var sum = (byte) (a.GetByte(i) + b.GetByte(i) + digit);
-                if (sum > 10)
-                {
-                    sum -= 10;
-                    digit = 1;
-                }
-                else
-                {
-                    digit = 0;
-                }
-
-                digits.Add(sum);
+                var sum = (byte)(a.GetByte(i) + b.GetByte(i) + carry);
+                carry = (byte) (sum / 10);
+                digits.Add((byte) (sum % 10));
             }
 
-            if (digit > 0) digits.Add(digit);
+            if (carry > 0) digits.Add(carry);
 
             return new BigInt(a.IsPositive, digits);
         }
@@ -330,6 +314,7 @@ namespace BigInt
         {
             if (b == Zero) throw new DivideByZeroException();
 
+            var otherPositive = b.IsPositive ? b : new BigInt(b.Bytes);
             var retValue = Zero;
             var curValue = Zero;
 
@@ -345,7 +330,7 @@ namespace BigInt
                     while (l <= r)
                     {
                         var m = (l + r) / 2;
-                        var cur = b * Exp((byte) m, i);
+                        var cur = otherPositive * Exp((byte) m, i);
                         if (cur <= curValue)
                         {
                             x = m;
@@ -358,7 +343,7 @@ namespace BigInt
                     }
 
                     retValue.SetByte(i, (byte) (x % 10));
-                    var t = b * Exp((byte) x, i);
+                    var t = otherPositive * Exp((byte) x, i);
                     curValue -= t;
                 }
 
@@ -374,7 +359,9 @@ namespace BigInt
 
         private static BigInt Mod(BigInt a, BigInt b)
         {
+            if (b == Zero) throw new DivideByZeroException();
             var retValue = Zero;
+            var otherPositive = b.IsPositive ? b : new BigInt(b.Bytes);
 
             for (var i = a.Count - 1; i >= 0; i--)
             {
@@ -387,7 +374,7 @@ namespace BigInt
                 while (l <= r)
                 {
                     var m = (l + r) >> 1;
-                    var cur = b * Exp((byte) m, i);
+                    var cur = otherPositive * Exp((byte) m, i);
                     if (cur <= retValue)
                     {
                         x = m;
@@ -399,11 +386,23 @@ namespace BigInt
                     }
                 }
 
-                retValue -= b * Exp((byte) x, i);
+                retValue -= otherPositive * Exp((byte) x, i);
             }
 
             retValue.RemoveNulls();
-            retValue.IsPositive = a.IsPositive == b.IsPositive || retValue == Zero;
+
+            if (retValue.IsZero)
+                retValue.IsPositive = true;
+            else if (a.IsPositive == b.IsPositive)
+                retValue.IsPositive = a.IsPositive;
+            else if (a.IsPositive && !b.IsPositive)
+                retValue += b;
+            else if (!a.IsPositive && b.IsPositive)
+            {
+                retValue -= b;
+                retValue.IsPositive = true;
+            }
+
             return retValue;
         }
 

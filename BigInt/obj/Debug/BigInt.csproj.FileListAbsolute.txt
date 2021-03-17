@@ -5,3 +5,6 @@ C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.
 C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.exe
 C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.pdb
 C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.csprojAssemblyReference.cache
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\bin\Debug\nunit.framework.dll
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\bin\Debug\nunit.framework.xml
+C:\Users\gosha\OneDrive\Документы\Repos\BigInt\BigInt\obj\Debug\BigInt.csproj.CopyComplete
