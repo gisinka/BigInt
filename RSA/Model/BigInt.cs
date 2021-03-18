@@ -219,19 +219,19 @@ namespace RSA.Model
 
         private static BigInt Add(BigInt a, BigInt b)
         {
-            var digits = new List<byte>();
+            var bytes = new List<byte>();
             byte carry = 0;
 
             for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
                 var sum = (byte) (a.GetByte(i) + b.GetByte(i) + carry);
                 carry = (byte) (sum / 10);
-                digits.Add((byte) (sum % 10));
+                bytes.Add((byte) (sum % 10));
             }
 
-            if (carry > 0) digits.Add(carry);
+            if (carry > 0) bytes.Add(carry);
 
-            return new BigInt(a.IsPositive, digits);
+            return new BigInt(a.IsPositive, bytes);
         }
 
         private static BigInt Subtract(BigInt a, BigInt b)
@@ -258,10 +258,10 @@ namespace RSA.Model
             var carry = 0;
             for (var i = 0; i < maxLength; i++)
             {
-                var subs = max.GetByte(i) - min.GetByte(i) - carry;
-                if (subs < 0)
+                var difference = max.GetByte(i) - min.GetByte(i) - carry;
+                if (difference < 0)
                 {
-                    subs += 10;
+                    difference += 10;
                     carry = 1;
                 }
                 else
@@ -269,7 +269,7 @@ namespace RSA.Model
                     carry = 0;
                 }
 
-                bytes.Add((byte) subs);
+                bytes.Add((byte) difference);
             }
 
             return new BigInt(max.IsPositive, bytes);
