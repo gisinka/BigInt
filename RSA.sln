@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigInt", "BigInt\BigInt.csproj", "{821150FF-4DAA-49A0-A4D3-590766591149}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSA", "RSA\RSA.csproj", "{821150FF-4DAA-49A0-A4D3-590766591149}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

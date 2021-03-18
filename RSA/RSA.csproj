@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{821150FF-4DAA-49A0-A4D3-590766591149}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>BigInt</RootNamespace>
-    <AssemblyName>BigInt</AssemblyName>
+    <RootNamespace>RSA</RootNamespace>
+    <AssemblyName>RSA</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -65,12 +65,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BigInt.cs" />
-    <Compile Include="BigIntTests.cs" />
-    <Compile Include="FileCryptor.cs" />
+    <Compile Include="Model\BigInt.cs" />
+    <Compile Include="Tests\BigIntTests.cs" />
+    <Compile Include="Model\FileCryptor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RSACryptor.cs" />
+    <Compile Include="Model\RSACryptor.cs" />
+    <Compile Include="Tests\RSATests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -88,6 +89,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

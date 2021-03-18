@@ -1,7 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
+using RSA.Model;
 
-namespace BigInt
+namespace RSA.Tests
 {
     [TestFixture]
     internal class BigIntTests
@@ -135,14 +136,13 @@ namespace BigInt
             Assert.That(() => new BigInt(first).Pow(new BigInt(second)), Throws.Exception.TypeOf<ArgumentException>());
         }
 
+        [TestCase("1", "1", "1", "0")]
         [TestCase("0", "0", "16", "0")]
         [TestCase("0", "1", "16", "0")]
         [TestCase("0", "256", "16", "0")]
         [TestCase("1", "0", "16", "1")]
         [TestCase("256", "0", "16", "1")]
         [TestCase("1", "7", "16", "1")]
-        [TestCase("1", "1", "1", "0")]
-        [TestCase("16", "2", "12", "4")]
         [TestCase("256", "10", "43", "35")]
         [TestCase("532098759872395", "12", "5897423759", "1663887615")]
         [TestCase("-532098759872395", "12", "5897423759", "4233536144")]

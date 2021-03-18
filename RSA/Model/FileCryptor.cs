@@ -1,16 +1,11 @@
 ﻿using System;
 using System.IO;
 
-namespace BigInt
+namespace RSA.Model
 {
     internal class FileCryptor
     {
         private readonly RSACryptor _rsa;
-
-        public FileCryptor(uint p, uint q)
-        {
-            _rsa = new RSACryptor(p, q);
-        }
 
         public FileCryptor(ulong p, ulong q)
         {

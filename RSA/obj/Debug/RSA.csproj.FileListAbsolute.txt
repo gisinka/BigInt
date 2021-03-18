@@ -1,0 +1,10 @@
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\bin\Debug\RSA.exe.config
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\bin\Debug\RSA.exe
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\bin\Debug\RSA.pdb
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\bin\Debug\nunit.framework.dll
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\bin\Debug\nunit.framework.xml
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\obj\Debug\RSA.csprojAssemblyReference.cache
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\obj\Debug\RSA.csproj.CoreCompileInputs.cache
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\obj\Debug\RSA.csproj.CopyComplete
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\obj\Debug\RSA.exe
+C:\Users\gosha\OneDrive\Документы\Repos\RSA\RSA\obj\Debug\RSA.pdb

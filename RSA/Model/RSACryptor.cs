@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BigInt
+namespace RSA.Model
 {
     internal class RSACryptor
     {
@@ -21,11 +21,6 @@ namespace BigInt
             _publicExponent = CreatePublicExponent(_eulerFunction);
             _secretExponent = _publicExponent.GetReverseElement(_eulerFunction);
             Validate();
-        }
-
-        public byte[] Encrypt(string input)
-        {
-            return Encrypt(Encoding.Default.GetBytes(input), _publicExponent, _module);
         }
 
         public byte[] Encrypt(byte[] input)
@@ -108,7 +103,7 @@ namespace BigInt
         private static bool IsPrime(ulong n)
         {
             if (n > 1)
-                for (var i = 2Ul; i < n; i++)
+                for (var i = 2ul; i < n; i++)
                 {
                     if (n % i != 0) continue;
                     return false;

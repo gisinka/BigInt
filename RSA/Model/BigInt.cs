@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BigInt
+namespace RSA.Model
 {
     internal class BigInt
     {
@@ -31,6 +31,9 @@ namespace BigInt
             }
 
             if (str.StartsWith("+")) str = str.Substring(1);
+
+            if (!str.All(char.IsDigit))
+                throw new ArgumentException("Входная строка не являлась числом");
 
             foreach (var c in str.Reverse()) Bytes.Add(Convert.ToByte(c.ToString()));
 
