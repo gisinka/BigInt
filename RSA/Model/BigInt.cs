@@ -21,6 +21,16 @@ namespace RSA.Model
 
         public int Count => Bytes.Count;
 
+        private byte this[int index]
+        {
+            get => index < Count ? Bytes[index] : (byte) 0;
+            set
+            {
+                while (Bytes.Count <= index) Bytes.Add(0);
+                Bytes[index] = value;
+            }
+        }
+
         public BigInt(string str)
         {
             Bytes = new List<byte>();
@@ -100,18 +110,6 @@ namespace RSA.Model
             }
         }
 
-        public byte GetByte(int index)
-        {
-            return index < Count ? Bytes[index] : (byte) 0;
-        }
-
-        public void SetByte(int index, byte digit)
-        {
-            while (Bytes.Count <= index) Bytes.Add(0);
-
-            Bytes[index] = digit;
-        }
-
         public override string ToString()
         {
             if (this == Zero) return "0";
@@ -163,8 +161,8 @@ namespace RSA.Model
             var counter = length > Count ? length : Count;
             for (var i = 0; i < counter; i += 2)
             {
-                var first = GetByte(i);
-                var second = (byte) (GetByte(i + 1) << 4);
+                var first = this[i];
+                var second = (byte) (this[i + 1] << 4);
                 bytes.Add((byte) (first | second));
             }
 
@@ -208,11 +206,10 @@ namespace RSA.Model
 
         private static int CompareDigits(BigInt a, BigInt b)
         {
-            var maxLength = Math.Max(a.Count, b.Count);
-            for (var i = maxLength; i > -1; i--)
-                if (a.GetByte(i) < b.GetByte(i))
+            for (var i = Math.Max(a.Count, b.Count); i > -1; i--)
+                if (a[i] < b[i])
                     return -1;
-                else if (a.GetByte(i) > b.GetByte(i)) return 1;
+                else if (a[i] > b[i]) return 1;
 
             return 0;
         }
@@ -224,9 +221,9 @@ namespace RSA.Model
 
             for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
-                var sum = (byte) (a.GetByte(i) + b.GetByte(i) + carry);
-                carry = (byte) (sum / 10);
-                bytes.Add((byte) (sum % 10));
+                var current = (byte) (a[i] + b[i] + carry);
+                carry = (byte) (current / 10);
+                bytes.Add((byte) (current % 10));
             }
 
             if (carry > 0) bytes.Add(carry);
@@ -254,11 +251,10 @@ namespace RSA.Model
                     break;
             }
 
-            var maxLength = Math.Max(a.Count, b.Count);
             var carry = 0;
-            for (var i = 0; i < maxLength; i++)
+            for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
-                var difference = max.GetByte(i) - min.GetByte(i) - carry;
+                var difference = max[i] - min[i] - carry;
                 if (difference < 0)
                 {
                     difference += 10;
@@ -279,19 +275,19 @@ namespace RSA.Model
         {
             try
             {
-                var retValue = Zero;
+                var result = Zero;
 
                 for (var i = 0; i < a.Count; i++)
                 for (int j = 0, carry = 0; j < b.Count || carry > 0; j++)
                 {
-                    var cur = retValue.GetByte(i + j) + a.GetByte(i) * b.GetByte(j) + carry;
-                    retValue.SetByte(i + j, (byte) (cur % 10));
+                    var cur = result[i + j] + a[i] * b[j] + carry;
+                    result[i + j] = (byte) (cur % 10);
                     carry = cur / 10;
                 }
 
-                retValue.IsPositive = a.IsPositive == b.IsPositive || retValue == Zero;
-                retValue.RemoveNulls();
-                return retValue;
+                result.IsPositive = a.IsPositive == b.IsPositive || result == Zero;
+                result.RemoveNulls();
+                return result;
             }
             catch (Exception)
             {
@@ -304,14 +300,14 @@ namespace RSA.Model
             if (b == Zero) throw new DivideByZeroException();
 
             var otherPositive = b.IsPositive ? b : new BigInt(b.Bytes);
-            var retValue = Zero;
-            var curValue = Zero;
+            var result = Zero;
+            var current = Zero;
 
             try
             {
                 for (var i = a.Count - 1; i >= 0; i--)
                 {
-                    curValue += Exp(a.GetByte(i), i);
+                    current += Exp(a[i], i);
 
                     var x = 0;
                     var l = 0;
@@ -320,7 +316,7 @@ namespace RSA.Model
                     {
                         var m = (l + r) / 2;
                         var cur = otherPositive * Exp((byte) m, i);
-                        if (cur <= curValue)
+                        if (cur <= current)
                         {
                             x = m;
                             l = m + 1;
@@ -331,14 +327,14 @@ namespace RSA.Model
                         }
                     }
 
-                    retValue.SetByte(i, (byte) (x % 10));
+                    result[i] = (byte) (x % 10);
                     var t = otherPositive * Exp((byte) x, i);
-                    curValue -= t;
+                    current -= t;
                 }
 
-                retValue.IsPositive = a.IsPositive == b.IsPositive || retValue == Zero;
-                retValue.RemoveNulls();
-                return retValue;
+                result.IsPositive = a.IsPositive == b.IsPositive || result == Zero;
+                result.RemoveNulls();
+                return result;
             }
             catch (Exception)
             {
@@ -349,14 +345,14 @@ namespace RSA.Model
         private static BigInt Mod(BigInt a, BigInt b)
         {
             if (b == Zero) throw new DivideByZeroException();
-            var retValue = Zero;
+            var result = Zero;
             var otherPositive = b.IsPositive ? b : new BigInt(b.Bytes);
 
             try
             {
                 for (var i = a.Count - 1; i >= 0; i--)
                 {
-                    retValue += Exp(a.GetByte(i), i);
+                    result += Exp(a[i], i);
 
                     var x = 0;
                     var l = 0;
@@ -366,7 +362,7 @@ namespace RSA.Model
                     {
                         var m = (l + r) >> 1;
                         var cur = otherPositive * Exp((byte) m, i);
-                        if (cur <= retValue)
+                        if (cur <= result)
                         {
                             x = m;
                             l = m + 1;
@@ -377,30 +373,30 @@ namespace RSA.Model
                         }
                     }
 
-                    retValue -= otherPositive * Exp((byte) x, i);
+                    result -= otherPositive * Exp((byte) x, i);
                 }
 
-                if (retValue.IsZero)
+                if (result.IsZero)
                 {
-                    retValue.IsPositive = true;
+                    result.IsPositive = true;
                 }
                 else if (a.IsPositive == b.IsPositive)
                 {
-                    retValue.IsPositive = a.IsPositive;
+                    result.IsPositive = a.IsPositive;
                 }
                 else if (a.IsPositive && !b.IsPositive)
                 {
-                    retValue += b;
+                    result += b;
                 }
                 else if (!a.IsPositive && b.IsPositive)
                 {
-                    retValue -= b;
-                    retValue.IsPositive = true;
+                    result -= b;
+                    result.IsPositive = true;
                 }
 
-                retValue.RemoveNulls();
+                result.RemoveNulls();
 
-                return retValue;
+                return result;
             }
             catch (Exception)
             {
@@ -423,7 +419,7 @@ namespace RSA.Model
         public static BigInt Exp(byte val, int exp)
         {
             var bigInt = Zero;
-            bigInt.SetByte(exp, val);
+            bigInt[exp] = val;
             bigInt.RemoveNulls();
             return bigInt;
         }
