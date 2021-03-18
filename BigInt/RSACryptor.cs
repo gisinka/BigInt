@@ -79,7 +79,7 @@ namespace BigInt
                 .GroupBy(x => x.Index / (int) Math.Ceiling((double) n.Count / 2))
                 .Select(x => BigInt.GetUnpackedBCD(x.Select(v => v.Value)))
                 .Select(x => x.ModPow(d, n))
-                .Select(x => (byte) x.ConvertToUInt())
+                .Select(x => x.ConvertToByte())
                 .ToArray();
         }
 

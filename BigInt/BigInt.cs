@@ -21,11 +21,6 @@ namespace BigInt
 
         public int Count => Bytes.Count;
 
-        public BigInt()
-        {
-            Bytes = new List<byte>();
-        }
-
         public BigInt(string str)
         {
             Bytes = new List<byte>();
@@ -35,10 +30,7 @@ namespace BigInt
                 str = str.Substring(1);
             }
 
-            if (str.StartsWith("+"))
-            {
-                str = str.Substring(1);
-            }
+            if (str.StartsWith("+")) str = str.Substring(1);
 
             foreach (var c in str.Reverse()) Bytes.Add(Convert.ToByte(c.ToString()));
 
@@ -134,14 +126,9 @@ namespace BigInt
             return (x % m + m) % m;
         }
 
-        public uint ConvertToUInt()
+        public byte ConvertToByte()
         {
-            return ConvertToUInt(this);
-        }
-
-        public ulong ConvertToULong()
-        {
-            return ConvertToULong(this);
+            return ConvertToByte(this);
         }
 
         private void RemoveNulls()
@@ -155,13 +142,13 @@ namespace BigInt
 
         private List<BigInt> ConvertToBinary()
         {
-            var copy = new BigInt(this);
+            var itemToConvert = new BigInt(this);
             var two = new BigInt(2);
             var result = new List<BigInt>();
-            while (!copy.IsZero)
+            while (!itemToConvert.IsZero)
             {
-                result.Add(copy % two);
-                copy /= two;
+                result.Add(itemToConvert % two);
+                itemToConvert /= two;
             }
 
             return result;
@@ -193,7 +180,7 @@ namespace BigInt
             return new BigInt(bytes);
         }
 
-        private static int Comparison(BigInt a, BigInt b, bool ignoreSign = false)
+        public static int Comparison(BigInt a, BigInt b, bool ignoreSign = false)
         {
             return CompareSign(a, b, ignoreSign);
         }
@@ -234,7 +221,7 @@ namespace BigInt
 
             for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
-                var sum = (byte)(a.GetByte(i) + b.GetByte(i) + carry);
+                var sum = (byte) (a.GetByte(i) + b.GetByte(i) + carry);
                 carry = (byte) (sum / 10);
                 digits.Add((byte) (sum % 10));
             }
@@ -249,9 +236,8 @@ namespace BigInt
             var bytes = new List<byte>();
             var max = Zero;
             var min = Zero;
-            var compare = Comparison(a, b, true);
 
-            switch (compare)
+            switch (Comparison(a, b, true))
             {
                 case -1:
                     min = a;
@@ -266,18 +252,18 @@ namespace BigInt
             }
 
             var maxLength = Math.Max(a.Count, b.Count);
-            var digit = 0;
+            var carry = 0;
             for (var i = 0; i < maxLength; i++)
             {
-                var subs = max.GetByte(i) - min.GetByte(i) - digit;
+                var subs = max.GetByte(i) - min.GetByte(i) - carry;
                 if (subs < 0)
                 {
                     subs += 10;
-                    digit = 1;
+                    carry = 1;
                 }
                 else
                 {
-                    digit = 0;
+                    carry = 0;
                 }
 
                 bytes.Add((byte) subs);
@@ -306,7 +292,7 @@ namespace BigInt
             }
             catch (Exception)
             {
-                throw new ArithmeticException("Multiplication overflow.");
+                throw new ArithmeticException("Multiplication overflow");
             }
         }
 
@@ -353,7 +339,7 @@ namespace BigInt
             }
             catch (Exception)
             {
-                throw new ArithmeticException("Division overflow.");
+                throw new ArithmeticException("Division overflow");
             }
         }
 
@@ -363,47 +349,60 @@ namespace BigInt
             var retValue = Zero;
             var otherPositive = b.IsPositive ? b : new BigInt(b.Bytes);
 
-            for (var i = a.Count - 1; i >= 0; i--)
+            try
             {
-                retValue += Exp(a.GetByte(i), i);
-
-                var x = 0;
-                var l = 0;
-                var r = 10;
-
-                while (l <= r)
+                for (var i = a.Count - 1; i >= 0; i--)
                 {
-                    var m = (l + r) >> 1;
-                    var cur = otherPositive * Exp((byte) m, i);
-                    if (cur <= retValue)
+                    retValue += Exp(a.GetByte(i), i);
+
+                    var x = 0;
+                    var l = 0;
+                    var r = 10;
+
+                    while (l <= r)
                     {
-                        x = m;
-                        l = m + 1;
+                        var m = (l + r) >> 1;
+                        var cur = otherPositive * Exp((byte) m, i);
+                        if (cur <= retValue)
+                        {
+                            x = m;
+                            l = m + 1;
+                        }
+                        else
+                        {
+                            r = m - 1;
+                        }
                     }
-                    else
-                    {
-                        r = m - 1;
-                    }
+
+                    retValue -= otherPositive * Exp((byte) x, i);
                 }
 
-                retValue -= otherPositive * Exp((byte) x, i);
+                if (retValue.IsZero)
+                {
+                    retValue.IsPositive = true;
+                }
+                else if (a.IsPositive == b.IsPositive)
+                {
+                    retValue.IsPositive = a.IsPositive;
+                }
+                else if (a.IsPositive && !b.IsPositive)
+                {
+                    retValue += b;
+                }
+                else if (!a.IsPositive && b.IsPositive)
+                {
+                    retValue -= b;
+                    retValue.IsPositive = true;
+                }
+
+                retValue.RemoveNulls();
+
+                return retValue;
             }
-
-            retValue.RemoveNulls();
-
-            if (retValue.IsZero)
-                retValue.IsPositive = true;
-            else if (a.IsPositive == b.IsPositive)
-                retValue.IsPositive = a.IsPositive;
-            else if (a.IsPositive && !b.IsPositive)
-                retValue += b;
-            else if (!a.IsPositive && b.IsPositive)
+            catch (Exception)
             {
-                retValue -= b;
-                retValue.IsPositive = true;
+                throw new ArithmeticException("Mod overflow");
             }
-
-            return retValue;
         }
 
         private static IEnumerable<byte> GetBytes(ulong value)
@@ -426,61 +425,57 @@ namespace BigInt
             return bigInt;
         }
 
-        public static uint ConvertToUInt(BigInt a)
+        public static byte ConvertToByte(BigInt a)
         {
-            if (CompareDigits(a, new BigInt(uint.MaxValue)) > 0 && a.IsPositive)
+            if (CompareDigits(a, new BigInt(byte.MaxValue)) > 0 && a.IsPositive)
                 throw new ArithmeticException("The value is greater than the int");
-            uint res = 0;
-            uint i = 1;
+            byte res = 0;
+            var i = 1;
             foreach (var digit in a.Bytes)
             {
-                res += digit * i;
+                res += (byte) (digit * i);
                 i *= 10;
             }
 
             return res;
         }
 
-        public static ulong ConvertToULong(BigInt a)
+        public static BigInt Pow(BigInt number, BigInt power)
         {
-            if (CompareDigits(a, new BigInt(ulong.MaxValue)) > 0 && a.IsPositive)
-                throw new ArithmeticException("The value is greater than the long");
-            ulong res = 0;
-            ulong i = 1;
-            foreach (var digit in a.Bytes)
-            {
-                res += digit * i;
-                i *= 10;
-            }
-
-            return res;
-        }
-
-        public static BigInt Pow(BigInt a, BigInt n)
-        {
-            if (n == Zero)
+            if (power < Zero)
+                throw new ArgumentException("Степень не должна быть меньше нуля");
+            if (number == Zero)
+                return Zero;
+            if (power == Zero)
                 return One;
-            if (n % Two == One)
-                return Pow(a, n - One) * a;
-            var b = Pow(a, n / Two);
+            if (power % Two == One)
+                return Pow(number, power - One) * number;
+            var b = Pow(number, power / Two);
             return b * b;
         }
 
-        public BigInt ModPow(BigInt power, BigInt module)
+        public static BigInt ModPow(BigInt number, BigInt power, BigInt module)
         {
-            var binaryValue = power.ConvertToBinary();
+            if (power > Zero)
+            {
+                var binaryValue = power.ConvertToBinary();
 
-            var arr = new BigInt[binaryValue.Count];
-            arr[0] = new BigInt(this);
-            for (var i = 1; i < binaryValue.Count; i++)
-                arr[i] = arr[i - 1] * arr[i - 1] % module;
+                var arr = new BigInt[binaryValue.Count];
+                arr[0] = new BigInt(number);
+                for (var i = 1; i < binaryValue.Count; i++)
+                    arr[i] = arr[i - 1] * arr[i - 1] % module;
 
-            var mult = One;
-            for (var j = 0; j < binaryValue.Count; j++)
-                if (binaryValue[j] > Zero)
-                    mult *= binaryValue[j] * arr[j];
+                var mult = One;
+                for (var j = 0; j < binaryValue.Count; j++)
+                    if (binaryValue[j] > Zero)
+                        mult *= binaryValue[j] * arr[j];
+                mult.IsPositive = number.IsPositive;
+                return mult % module;
+            }
 
-            return mult % module;
+            if (power < Zero) throw new ArgumentException("Степень не должна быть меньше нуля");
+
+            return (number > Zero ? One : Zero) % module;
         }
 
         public static BigInt GCD(BigInt number, BigInt mod, out BigInt x,
@@ -507,6 +502,11 @@ namespace BigInt
         public BigInt Pow(BigInt n)
         {
             return Pow(this, n);
+        }
+
+        public BigInt ModPow(BigInt power, BigInt module)
+        {
+            return ModPow(this, power, module);
         }
 
         public static bool operator <(BigInt a, BigInt b)

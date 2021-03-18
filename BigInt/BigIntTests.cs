@@ -109,5 +109,105 @@ namespace BigInt
         {
             Assert.That(() => new BigInt(first) % new BigInt(second), Throws.Exception.TypeOf<DivideByZeroException>());
         }
+
+        [TestCase("0", "0", "0")]
+        [TestCase("0", "1000", "0")]
+        [TestCase("2", "9", "512")]
+        [TestCase("-2", "9", "-512")]
+        [TestCase("2", "10", "1024")]
+        [TestCase("-2", "10", "1024")]
+        [TestCase("4213524356245", "43",
+            "724030521258007518583560483303916922332632960364092362998402917361677474014395383304344311140015998484627707482809914648605592580001778626038345295135449803908464144784647463444043764189178366186161599268931630969481540171809224743926918241221259678316874010727004567082165113812672323132373997378856731548163291480837726447019318125084527456276973381275675250015808027035359153720526122706537052703601524747390737967931777244260220707647992235194505120729012480482125273734749176426306432753136135312396534858690984037821181118488311767578125")]
+        [TestCase("-4213524356245", "43",
+            "-724030521258007518583560483303916922332632960364092362998402917361677474014395383304344311140015998484627707482809914648605592580001778626038345295135449803908464144784647463444043764189178366186161599268931630969481540171809224743926918241221259678316874010727004567082165113812672323132373997378856731548163291480837726447019318125084527456276973381275675250015808027035359153720526122706537052703601524747390737967931777244260220707647992235194505120729012480482125273734749176426306432753136135312396534858690984037821181118488311767578125")]
+        public static void PowTest(string first, string second, string expected)
+        {
+            Assert.AreEqual(new BigInt(expected), new BigInt(first).Pow(new BigInt(second)));
+        }
+
+        [TestCase("0", "-1")]
+        [TestCase("1", "-1000")]
+        [TestCase("1526348609843026981034", "-43")]
+        [TestCase("+1526348609843026981034", "-43")]
+        [TestCase("-1526348609843026981034", "-43")]
+        public static void ThrowsArgumentExceptionWhenPowerLessZeroTest(string first, string second)
+        {
+            Assert.That(() => new BigInt(first).Pow(new BigInt(second)), Throws.Exception.TypeOf<ArgumentException>());
+        }
+
+        [TestCase("0", "0", "16", "0")]
+        [TestCase("0", "1", "16", "0")]
+        [TestCase("0", "256", "16", "0")]
+        [TestCase("1", "0", "16", "1")]
+        [TestCase("256", "0", "16", "1")]
+        [TestCase("1", "7", "16", "1")]
+        [TestCase("1", "1", "1", "0")]
+        [TestCase("16", "2", "12", "4")]
+        [TestCase("256", "10", "43", "35")]
+        [TestCase("532098759872395", "12", "5897423759", "1663887615")]
+        [TestCase("-532098759872395", "12", "5897423759", "4233536144")]
+        [TestCase("532098759872395", "12", "-5897423759", "-4233536144")]
+        [TestCase("-532098759872395", "12", "-5897423759", "-1663887615")]
+        public static void ModPowTest(string number, string power, string module, string expected)
+        {
+            Assert.AreEqual(new BigInt(expected), new BigInt(number).ModPow(new BigInt(power), new BigInt(module)));
+        }
+
+        [TestCase("0", "-1", "16")]
+        [TestCase("532098759872395", "-12", "5897423759")]
+        [TestCase("-532098759872395", "-12", "5897423759")]
+        [TestCase("+532098759872395", "-12", "5897423759")]
+        public static void ThrowsArgumentExceptionWhenModPowerLessZeroTest(string number, string power, string module)
+        {
+            Assert.That(() => new BigInt(number).ModPow(new BigInt(power), new BigInt(module)),
+                Throws.Exception.TypeOf<ArgumentException>());
+        }
+
+        [TestCase("0", "0", 0)]
+        [TestCase("1", "1", 0)]
+        [TestCase("-1", "-1", 0)]
+        [TestCase("+1", "1", 0)]
+        [TestCase("+1", "+1", 0)]
+        [TestCase("123456789123456789", "123456789123456789", 0)]
+        [TestCase("+123456789123456789", "123456789123456789", 0)]
+        [TestCase("+123456789123456789", "+123456789123456789", 0)]
+        [TestCase("-123456789123456789", "-123456789123456789", 0)]
+        [TestCase("1", "0", 1)]
+        [TestCase("1", "-1", 1)]
+        [TestCase("+1", "-1", 1)]
+        [TestCase("123456789123456789", "0", 1)]
+        [TestCase("+123456789123456789", "0", 1)]
+        [TestCase("123456789123456789", "123456789", 1)]
+        [TestCase("+123456789123456789", "123456789", 1)]
+        [TestCase("123456789123456789", "-123456789123456789", 1)]
+        [TestCase("0", "1", -1)]
+        [TestCase("-1", "1", -1)]
+        [TestCase("-1", "+1", -1)]
+        [TestCase("-123456789123456789", "0", -1)]
+        [TestCase("-123456789123456789", "123456789", -1)]
+        [TestCase("0", "123456789123456789", -1)]
+        [TestCase("0", "+123456789123456789", -1)]
+        [TestCase("123456789", "123456789123456789", -1)]
+        [TestCase("123456789", "+123456789123456789", -1)]
+        [TestCase("-123456789123456789", "123456789123456789", -1)]
+        public static void ComparisonTest(string first, string second, int expected)
+        {
+            Assert.AreEqual(expected, BigInt.Comparison(new BigInt(first), new BigInt(second)));
+        }
+
+        [TestCase("0", "-0", 0)]
+        [TestCase("-0", "0", 0)]
+        [TestCase("-1", "1", 0)]
+        [TestCase("1", "-1", 0)]
+        [TestCase("-1", "+1", 0)]
+        [TestCase("+1", "-1", 0)]
+        [TestCase("-123456789123456789", "123456789123456789", 0)]
+        [TestCase("123456789123456789", "-123456789123456789", 0)]
+        [TestCase("-123456789123456789", "+123456789123456789", 0)]
+        [TestCase("+123456789123456789", "-123456789123456789", 0)]
+        public static void EqualityIgnoreSignTest(string first, string second, int expected)
+        {
+            Assert.AreEqual(expected, BigInt.Comparison(new BigInt(first), new BigInt(second), true));
+        }
     }
 }
