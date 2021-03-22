@@ -92,7 +92,7 @@ namespace RSA.Model
             var exp = new BigInt(10);
             for (var i = BigInt.Two; i < mod; i++)
             {
-                if (BigInt.GCD(exp, mod, out _, out _) == BigInt.One)
+                if (BigInt.RunExtendedEuclidean(exp, mod, out _, out _) == BigInt.One)
                     return exp;
                 exp++;
             }

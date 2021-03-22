@@ -209,5 +209,14 @@ namespace RSA.Tests
         {
             Assert.AreEqual(expected, BigInt.Comparison(new BigInt(first), new BigInt(second), true));
         }
+
+        [TestCase("0", "1", "0")]
+        [TestCase("3", "26", "9")]
+        [TestCase("3", "7", "5")]
+        [TestCase("7", "40832", "34999")]
+        public static void ReverseElementTest(string number, string module, string expected)
+        {
+            Assert.AreEqual(new BigInt(expected), new BigInt(number).GetReverseElement(new BigInt(module)));
+        }
     }
 }

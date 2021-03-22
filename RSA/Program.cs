@@ -10,7 +10,7 @@ namespace RSA
         {
             while (true)
             {
-                Console.WriteLine("Команды:\r\n1.encrypt\r\n2.decrypt\r\n3.test\r\n4.exit");
+                Console.WriteLine("Команды:\r\n1.encrypt\r\n2.decrypt\r\n3.test\r\n4.exit\r\n");
 
                 switch (Console.ReadLine())
                 {
@@ -39,14 +39,12 @@ namespace RSA
 
         private static void FileDecrypt()
         {
-            Console.WriteLine("Введите простые числа P и Q");
-            var p = ulong.Parse(Console.ReadLine() ??
-                                throw new InvalidOperationException("Пустая строка - число"));
-            var q = ulong.Parse(Console.ReadLine() ??
-                                throw new InvalidOperationException("Пустая строка - число"));
-            var fc = new FileCryptor(p, q);
+            Console.WriteLine("Введите приватную экспоненту");
+            var d = new BigInt(Console.ReadLine());
+            Console.WriteLine("Введите модуль");
+            var n = new BigInt(Console.ReadLine());
             Console.WriteLine("Введите имя файла");
-            fc.Decrypt(Console.ReadLine());
+            FileCryptor.Decrypt(Console.ReadLine(), d, n);
         }
 
         private static void FileEncrypt()
@@ -87,7 +85,7 @@ namespace RSA
             Console.WriteLine("Decrypted Bytes \r\n" + BitConverter.ToString(decrypted));
 
             Console.WriteLine(
-                $"Euler Function = {encryptor.GetEulerFunction()}, Module = {encryptor.GetModule()}, Secret Exponent = {encryptor.GetPrivateKey().Item1}, Public Exponent = {encryptor.GetPublicKey().Item1}");
+                $"Public Key {encryptor.GetPublicKey()}\r\nPrivate Key {encryptor.GetPrivateKey()}\r\n");
         }
     }
 }

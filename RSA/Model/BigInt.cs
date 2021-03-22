@@ -119,14 +119,6 @@ namespace RSA.Model
             return s.ToString();
         }
 
-        public BigInt GetReverseElement(BigInt m)
-        {
-            var gdc = GCD(this, m, out var x, out var _);
-            if (gdc != One)
-                return Zero;
-            return (x % m + m) % m;
-        }
-
         public byte ConvertToByte()
         {
             return ConvertToByte(this);
@@ -144,12 +136,11 @@ namespace RSA.Model
         private List<BigInt> ConvertToBinary()
         {
             var itemToConvert = new BigInt(this);
-            var two = new BigInt(2);
             var result = new List<BigInt>();
             while (!itemToConvert.IsZero)
             {
-                result.Add(itemToConvert % two);
-                itemToConvert /= two;
+                result.Add(itemToConvert % Two);
+                itemToConvert /= Two;
             }
 
             return result;
@@ -254,10 +245,10 @@ namespace RSA.Model
             var carry = 0;
             for (var i = 0; i < Math.Max(a.Count, b.Count); i++)
             {
-                var difference = max[i] - min[i] - carry;
-                if (difference < 0)
+                var current = max[i] - min[i] - carry;
+                if (current < 0)
                 {
-                    difference += 10;
+                    current += 10;
                     carry = 1;
                 }
                 else
@@ -265,7 +256,7 @@ namespace RSA.Model
                     carry = 0;
                 }
 
-                bytes.Add((byte) difference);
+                bytes.Add((byte) current);
             }
 
             return new BigInt(max.IsPositive, bytes);
@@ -280,9 +271,9 @@ namespace RSA.Model
                 for (var i = 0; i < a.Count; i++)
                 for (int j = 0, carry = 0; j < b.Count || carry > 0; j++)
                 {
-                    var cur = result[i + j] + a[i] * b[j] + carry;
-                    result[i + j] = (byte) (cur % 10);
-                    carry = cur / 10;
+                    var current = result[i + j] + a[i] * b[j] + carry;
+                    result[i + j] = (byte) (current % 10);
+                    carry = current / 10;
                 }
 
                 result.IsPositive = a.IsPositive == b.IsPositive || result == Zero;
@@ -360,7 +351,7 @@ namespace RSA.Model
 
                     while (l <= r)
                     {
-                        var m = (l + r) >> 1;
+                        var m = (l + r) / 2;
                         var cur = otherPositive * Exp((byte) m, i);
                         if (cur <= result)
                         {
@@ -477,7 +468,7 @@ namespace RSA.Model
             return (number > Zero ? One : Zero) % module;
         }
 
-        public static BigInt GCD(BigInt number, BigInt mod, out BigInt x,
+        public static BigInt RunExtendedEuclidean(BigInt number, BigInt mod, out BigInt x,
             out BigInt y)
         {
             if (number.IsZero)
@@ -487,10 +478,18 @@ namespace RSA.Model
                 return mod;
             }
 
-            var d = GCD(mod % number, number, out var x1, out var y1);
+            var d = RunExtendedEuclidean(mod % number, number, out var x1, out var y1);
             x = y1 - mod / number * x1;
             y = x1;
             return d;
+        }
+
+        public BigInt GetReverseElement(BigInt m)
+        {
+            var gdc = RunExtendedEuclidean(this, m, out var x, out var _);
+            if (gdc != One)
+                return Zero;
+            return (x % m + m) % m;
         }
 
         public BigInt Pow(int n)
